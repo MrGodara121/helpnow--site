@@ -1,0 +1,16 @@
+{
+  "name": "helpnow-site",
+  "version": "1.0.0",
+  "description": "24/7 Emergency Home Services Website",
+  "main": "generate-pages.js",
+  "scripts": {
+    "generate": "node generate-pages.js",
+    "start": "npx serve ."
+  },
+  "keywords": ["emergency", "plumbing", "water-damage", "roofing", "electrical"],
+  "author": "HelpNow",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.0.0"
+  }
+}
