@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - HelpNow</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-container { max-width: 1400px; margin: 2rem auto; padding: 0 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); text-align: center; border: 1px solid var(--border-color); }
+        .stat-number { font-size: 2rem; font-weight: bold; color: var(--primary-color); }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 2px solid var(--border-color); flex-wrap: wrap; }
+        .tab { padding: 10px 20px; cursor: pointer; border: none; background: none; font-size: 1rem; font-weight: 500; color: var(--text-gray); }
+        .tab.active { color: var(--primary-color); border-bottom: 2px solid var(--primary-color); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .leads-table { background: white; border-radius: 12px; overflow-x: auto; border: 1px solid var(--border-color); }
+        .leads-table table { width: 100%; border-collapse: collapse; }
+        .leads-table th, .leads-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .leads-table th { background: var(--bg-light); font-weight: 600; }
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; }
+        .status-new { background: #dbeafe; color: #1e40af; }
+        .status-contacted { background: #fef3c7; color: #92400e; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .refresh-btn { background: var(--primary-color); color: white; padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 1rem; }
+        .refresh-btn:hover { background: var(--primary-dark); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container">
+        <a href="/" class="logo">🚨 HelpNow</a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="admin.html" class="admin-link">Admin</a>
+        </div>
+    </div>
+</nav>
+
+<div class="admin-container">
+    <h1>Admin Dashboard</h1>
+    
+    <div class="tabs">
+        <button class="tab active" data-tab="dashboard">Dashboard</button>
+        <button class="tab" data-tab="leads">Leads</button>
+        <button class="tab" data-tab="calls">Calls</button>
+        <button class="tab" data-tab="reviews">Reviews</button>
+        <button class="tab" data-tab="config">Configuration</button>
+    </div>
+    
+    <div id="dashboard" class="tab-content active">
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card"><div class="stat-number" id="totalLeads">0</div><div>Total Leads</div></div>
+            <div class="stat-card"><div class="stat-number" id="totalCalls">0</div><div>Total Calls</div></div>
+            <div class="stat-card"><div class="stat-number" id="activeProviders">0</div><div>Active Providers</div></div>
+            <div class="stat-card"><div class="stat-number" id="totalRevenue">$0</div><div>Total Revenue</div></div>
+        </div>
+        <button class="refresh-btn" onclick="loadDashboardData()">🔄 Refresh</button>
+        <div class="leads-table"><h3 style="padding: 16px;">Recent Leads</h3><div id="recentLeads"></div></div>
+    </div>
+    
+    <div id="leads" class="tab-content">
+        <button class="refresh-btn" onclick="loadLeadsData()">🔄 Refresh Leads</button>
+        <div class="leads-table"><table><thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>Service</th><th>City</th><th>Status</th></tr></thead><tbody id="leadsTableBody"></tbody></table></div>
+    </div>
+    
+    <div id="calls" class="tab-content">
+        <button class="refresh-btn" onclick="loadCallsData()">🔄 Refresh Calls</button>
+        <div class="leads-table"><table><thead><tr><th>Date</th><th>Caller Number</th><th>Called Number</th><th>Duration</th><th>Status</th></tr></thead><tbody id="callsTableBody"></tbody></table></div>
+    </div>
+    
+    <div id="reviews" class="tab-content">
+        <button class="refresh-btn" onclick="loadReviewsData()">🔄 Refresh Reviews</button>
+        <div class="leads-table"><table><thead><tr><th>Date</th><th>User</th><th>Rating</th><th>Review</th><th>Status</th></tr></thead><tbody id="reviewsTableBody"></tbody></table></div>
+    </div>
+    
+    <div id="config" class="tab-content">
+        <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+            <h3>System Configuration</h3>
+            <p>Configuration is managed via Google Sheets. Edit the following sheets:</p>
+            <ul style="margin-top: 16px; margin-left: 20px;">
+                <li><strong>COUNTRIES</strong> - Add/Edit countries</li>
+                <li><strong>MAIN_CATEGORIES</strong> - Add/Edit service categories</li>
+                <li><strong>SUB_CATEGORIES</strong> - Add/Edit sub-services</li>
+                <li><strong>CITIES</strong> - Add/Edit service locations</li>
+                <li><strong>NEIGHBORHOODS</strong> - Add/Edit neighborhoods</li>
+                <li><strong>CALL_NUMBERS</strong> - Manage phone numbers</li>
+                <li><strong>PROVIDERS</strong> - Manage service providers</li>
+                <li><strong>LEAD_ROUTING</strong> - Configure lead distribution</li>
+            </ul>
+            <p style="margin-top: 20px;"><a href="#" id="sheetLink" target="_blank" style="color: var(--primary-color);">Open Google Sheets →</a></p>
+        </div>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+    const SHEET_ID = CONFIG.SPREADSHEET_ID;
+    document.getElementById('sheetLink').href = `https://docs.google.com/spreadsheets/d/${SHEET_ID}`;
+    
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab).classList.add('active');
+            loadTabData(tab.dataset.tab);
+        });
+    });
+    
+    async function loadDashboardData() {
+        const stats = await callAPI('/getStats');
+        document.getElementById('totalLeads').textContent = stats.totalLeads || 0;
+        document.getElementById('totalCalls').textContent = stats.totalCalls || 0;
+        document.getElementById('activeProviders').textContent = stats.activeProviders || 0;
+        document.getElementById('totalRevenue').textContent = `$${stats.totalRevenue || 0}`;
+        
+        const recent = await callAPI('/getRecentLeads', { limit: 10 });
+        if (recent.leads && recent.leads.length) {
+            document.getElementById('recentLeads').innerHTML = `<table style="width:100%"><thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>Service</th><th>Status</th></tr></thead><tbody>${recent.leads.map(l => `<tr><td>${new Date(l.timestamp).toLocaleDateString()}</td><td>${l.name || 'N/A'}</td><td>${l.phone || 'N/A'}</td><td>${l.service || 'Emergency'}</td><td><span class="status-badge status-${(l.status || 'new').toLowerCase()}">${l.status || 'New'}</span></td></tr>`).join('')}</tbody></table>`;
+        }
+    }
+    
+    async function loadLeadsData() {
+        const leads = await callAPI('/getAllLeads');
+        if (leads && leads.length) {
+            document.getElementById('leadsTableBody').innerHTML = leads.map(l => `<tr><td>${new Date(l.timestamp).toLocaleDateString()}</td><td>${l.name || 'N/A'}</td><td>${l.phone || 'N/A'}</td><td>${l.service || 'Emergency'}</td><td>${l.city || 'N/A'}</td><td><span class="status-badge status-${(l.status || 'new').toLowerCase()}">${l.status || 'New'}</span></td></tr>`).join('');
+        }
+    }
+    
+    async function loadCallsData() {
+        const calls = await callAPI('/getAllCalls');
+        if (calls && calls.length) {
+            document.getElementById('callsTableBody').innerHTML = calls.map(c => `<tr><td>${new Date(c.timestamp).toLocaleDateString()}</td><td>${c.caller_number || 'Anonymous'}</td><td>${c.called_number || 'N/A'}</td><td>${c.duration || 0} sec</td><td><span class="status-badge">${c.status || 'Connected'}</span></td></tr>`).join('');
+        }
+    }
+    
+    async function loadReviewsData() {
+        const reviews = await callAPI('/getAllReviews');
+        if (reviews && reviews.length) {
+            document.getElementById('reviewsTableBody').innerHTML = reviews.map(r => `<tr><td>${new Date(r.date).toLocaleDateString()}</td><td>${r.user_name}</td><td>⭐ ${r.rating}</td><td>${r.review_text.substring(0, 100)}...</td><td><span class="status-badge">${r.status || 'Approved'}</span></td></tr>`).join('');
+        }
+    }
+    
+    function loadTabData(tabName) {
+        if (tabName === 'dashboard') loadDashboardData();
+        else if (tabName === 'leads') loadLeadsData();
+        else if (tabName === 'calls') loadCallsData();
+        else if (tabName === 'reviews') loadReviewsData();
+    }
+    
+    loadDashboardData();
+</script>
+</body>
+</html>
