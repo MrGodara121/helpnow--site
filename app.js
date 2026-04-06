@@ -1,50 +1,57 @@
 // ============================================
 // HELPNOW.COM - MAIN APPLICATION
-// 100% Google Sheet Controlled
+// 100% Google Sheet Controlled - 31 Tabs
 // ============================================
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 HelpNow Initializing...');
+    
     await loadSystemConfig();
     await loadHeroContent();
     await loadEmergencyNumber();
-    await loadServices();
+    await loadMainCategories();
     await loadSubCategories();
     await loadCities();
     await loadNeighborhoods();
-    await loadReviews();
+    await loadLandmarks();
+    await loadProviderReviews();
+    await loadRatingsSummary();
+    await loadFAQs();
+    await loadInternalLinks();
     await loadNavigationMenu();
+    await loadTrustSection();
+    await loadEmergencyCTA();
+    await loadFooterSections();
+    await loadFooterSocialLinks();
+    await loadFooterPolicyLinks();
+    await loadFooterTrustBadges();
+    await loadFooterNewsletter();
+    await loadFooterApps();
+    await loadFooterPaymentMethods();
+    await loadFooterBusinessHours();
     await initSmartSearch();
     await initForms();
     await initMobileMenu();
-    await loadFooterContent();
+    await initSmoothScroll();
+    await initFAQToggles();
+    
     console.log('✅ HelpNow Ready!');
 });
 
 // ============================================
-// LOAD SYSTEM CONFIGURATION FROM SHEET
+// SYSTEM CONFIGURATION
 // ============================================
 async function loadSystemConfig() {
     try {
         const config = await callAPI(CONFIG.ENDPOINTS.getSystemConfig);
         if (config && !config.error) {
-            // Apply colors if available
-            if (config.primary_color) {
-                document.documentElement.style.setProperty('--primary-color', config.primary_color);
-            }
-            if (config.primary_dark) {
-                document.documentElement.style.setProperty('--primary-dark', config.primary_dark);
-            }
-            if (config.secondary_start) {
-                document.documentElement.style.setProperty('--secondary-start', config.secondary_start);
-            }
-            if (config.secondary_mid) {
-                document.documentElement.style.setProperty('--secondary-mid', config.secondary_mid);
-            }
-            if (config.secondary_end) {
-                document.documentElement.style.setProperty('--secondary-end', config.secondary_end);
-            }
+            // Apply colors
+            if (config.primary_color) document.documentElement.style.setProperty('--primary-color', config.primary_color);
+            if (config.primary_dark) document.documentElement.style.setProperty('--primary-dark', config.primary_dark);
+            if (config.secondary_start) document.documentElement.style.setProperty('--secondary-start', config.secondary_start);
+            if (config.secondary_mid) document.documentElement.style.setProperty('--secondary-mid', config.secondary_mid);
+            if (config.secondary_end) document.documentElement.style.setProperty('--secondary-end', config.secondary_end);
             
             // Update trust badges
             const badges = document.querySelectorAll('.emergency-badge span');
@@ -55,20 +62,28 @@ async function loadSystemConfig() {
                 if (config.trust_badge_4) badges[3].textContent = config.trust_badge_4;
             }
         }
+        
+        // Apply colors theme
+        const colors = await callAPI(CONFIG.ENDPOINTS.getColorsTheme);
+        if (colors && !colors.error) {
+            Object.keys(colors).forEach(key => {
+                if (colors[key]) document.documentElement.style.setProperty(`--${key.replace(/_/g, '-')}`, colors[key]);
+            });
+        }
     } catch (error) {
         console.error('Error loading system config:', error);
     }
 }
 
 // ============================================
-// LOAD HERO CONTENT FROM SHEET
+// HERO CONTENT
 // ============================================
 async function loadHeroContent() {
     try {
         const hero = await callAPI(CONFIG.ENDPOINTS.getHeroContent);
         if (hero && !hero.error) {
             const titleEl = document.querySelector('.hero h1');
-            const subtitleEl = document.querySelector('.hero > .container > p');
+            const subtitleEl = document.querySelector('.hero-subtitle');
             const searchInput = document.getElementById('smartSearch');
             const searchBtn = document.getElementById('searchBtn');
             
@@ -83,22 +98,21 @@ async function loadHeroContent() {
 }
 
 // ============================================
-// LOAD EMERGENCY NUMBER FROM SHEET
+// EMERGENCY NUMBER
 // ============================================
 async function loadEmergencyNumber() {
     try {
         const data = await callAPI(CONFIG.ENDPOINTS.getEmergencyNumber);
-        const emergencyNumber = data.number || CONFIG.DEFAULT_EMERGENCY_NUMBER || '+18889180798';
+        const emergencyNumber = data.number || CONFIG.DEFAULT_EMERGENCY_NUMBER;
         
         const callBtn = document.getElementById('emergencyCallBtn');
-        const footerPhone = document.getElementById('footerPhone');
         const ctaButton = document.querySelector('.emergency-cta .call-btn');
         
         if (callBtn) {
             callBtn.textContent = `📞 Call Now: ${emergencyNumber}`;
             callBtn.href = `tel:${emergencyNumber.replace(/[^0-9+]/g, '')}`;
+            callBtn.addEventListener('click', () => trackCall(emergencyNumber, window.location.pathname));
         }
-        if (footerPhone) footerPhone.textContent = emergencyNumber;
         if (ctaButton) {
             ctaButton.textContent = `📞 Call Now: ${emergencyNumber}`;
             ctaButton.href = `tel:${emergencyNumber.replace(/[^0-9+]/g, '')}`;
@@ -109,40 +123,40 @@ async function loadEmergencyNumber() {
 }
 
 // ============================================
-// LOAD SERVICES WITH RATINGS FROM SHEET
+// MAIN CATEGORIES
 // ============================================
-async function loadServices() {
+async function loadMainCategories() {
     const serviceGrid = document.getElementById('serviceGrid');
     if (!serviceGrid) return;
     
     serviceGrid.innerHTML = '<div class="spinner"></div>';
     try {
-        const data = await callAPI(CONFIG.ENDPOINTS.getServices, { limit: 20 });
+        const data = await callAPI(CONFIG.ENDPOINTS.getMainCategories, { limit: 20 });
         
-        if (data.services && data.services.length) {
-            serviceGrid.innerHTML = data.services.map(service => `
-                <a href="/pages/${service.slug || service.category_id.toLowerCase().replace(/ /g, '-')}.html" class="service-card">
-                    <div class="service-icon">${service.icon || '🔧'}</div>
-                    <h3>${service.category_name}</h3>
-                    <p>${service.description || '24/7 Emergency Service'}</p>
-                    <div class="rating">⭐ ${service.avg_rating || '4.8'} (${service.total_reviews || 100}+ reviews)</div>
+        if (data.categories && data.categories.length) {
+            serviceGrid.innerHTML = data.categories.map(category => `
+                <a href="/pages/${category.slug || category.category_id.toLowerCase().replace(/ /g, '-')}.html" class="service-card">
+                    <div class="service-icon">${category.icon || '🔧'}</div>
+                    <h3>${category.category_name}</h3>
+                    <p>${category.description || '24/7 Emergency Service'}</p>
+                    <div class="rating">⭐ ${category.avg_rating || '4.8'} (${category.total_reviews || 100}+ reviews)</div>
                 </a>
             `).join('');
         } else {
             serviceGrid.innerHTML = '<p>No services found. Please check back later.</p>';
         }
     } catch (error) {
-        console.error('Error loading services:', error);
+        console.error('Error loading categories:', error);
         serviceGrid.innerHTML = '<p>Unable to load services. Please try again later.</p>';
     }
 }
 
 // ============================================
-// LOAD SUB CATEGORIES FROM SHEET
+// SUB CATEGORIES
 // ============================================
 async function loadSubCategories() {
     try {
-        const data = await callAPI(CONFIG.ENDPOINTS.getSubCategories, { limit: 50 });
+        const data = await callAPI(CONFIG.ENDPOINTS.getSubCategories, { limit: 100 });
         if (data.sub_categories && data.sub_categories.length) {
             window.subCategories = data.sub_categories;
         }
@@ -152,7 +166,7 @@ async function loadSubCategories() {
 }
 
 // ============================================
-// LOAD CITIES FROM SHEET
+// CITIES
 // ============================================
 async function loadCities() {
     const cityGrid = document.getElementById('cityGrid');
@@ -180,7 +194,7 @@ async function loadCities() {
 }
 
 // ============================================
-// LOAD NEIGHBORHOODS FROM SHEET (Hyper-local SEO)
+// NEIGHBORHOODS (Hyper-local SEO)
 // ============================================
 async function loadNeighborhoods() {
     const neighborhoodGrid = document.getElementById('neighborhoodGrid');
@@ -209,15 +223,29 @@ async function loadNeighborhoods() {
 }
 
 // ============================================
-// LOAD REVIEWS FROM SHEET
+// LANDMARKS
 // ============================================
-async function loadReviews() {
+async function loadLandmarks() {
+    try {
+        const data = await callAPI(CONFIG.ENDPOINTS.getLandmarks, { limit: 20 });
+        if (data.landmarks && data.landmarks.length) {
+            window.landmarks = data.landmarks;
+        }
+    } catch (error) {
+        console.error('Error loading landmarks:', error);
+    }
+}
+
+// ============================================
+// PROVIDER REVIEWS
+// ============================================
+async function loadProviderReviews() {
     const reviewsGrid = document.getElementById('reviewsGrid');
     if (!reviewsGrid) return;
     
     reviewsGrid.innerHTML = '<div class="spinner"></div>';
     try {
-        const data = await callAPI(CONFIG.ENDPOINTS.getReviews, { limit: 6 });
+        const data = await callAPI(CONFIG.ENDPOINTS.getProviderReviews, { limit: 6 });
         
         if (data.reviews && data.reviews.length) {
             reviewsGrid.innerHTML = data.reviews.map(review => `
@@ -240,7 +268,103 @@ async function loadReviews() {
 }
 
 // ============================================
-// LOAD NAVIGATION MENU FROM SHEET
+// RATINGS SUMMARY
+// ============================================
+async function loadRatingsSummary() {
+    try {
+        const data = await callAPI(CONFIG.ENDPOINTS.getRatingsSummary);
+        if (data && !data.error) {
+            const avgRatingEl = document.getElementById('avgRating');
+            const totalReviewsEl = document.getElementById('totalReviews');
+            if (avgRatingEl) avgRatingEl.textContent = data.avg_rating || '4.9';
+            if (totalReviewsEl) totalReviewsEl.textContent = data.total_reviews || '1250';
+        }
+    } catch (error) {
+        console.error('Error loading ratings summary:', error);
+    }
+}
+
+// ============================================
+// FAQS (Schema Markup)
+// ============================================
+async function loadFAQs() {
+    const faqGrid = document.getElementById('faqGrid');
+    if (!faqGrid) return;
+    
+    faqGrid.innerHTML = '<div class="spinner"></div>';
+    try {
+        const data = await callAPI(CONFIG.ENDPOINTS.getFAQs, { limit: 8 });
+        
+        if (data.faqs && data.faqs.length) {
+            faqGrid.innerHTML = data.faqs.map((faq, index) => `
+                <div class="faq-card" data-faq-index="${index}">
+                    <div class="faq-question">
+                        ${faq.question}
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>${faq.answer}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Add FAQ schema
+            addFAQSchema(data.faqs);
+        } else {
+            faqGrid.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error loading FAQs:', error);
+        faqGrid.style.display = 'none';
+    }
+}
+
+// Add FAQ Schema Markup
+function addFAQSchema(faqs) {
+    const schema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+            "@type": "Question",
+            "name": faq.question,
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": faq.answer
+            }
+        }))
+    };
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+}
+
+// ============================================
+// INTERNAL LINKS (SEO Boost)
+// ============================================
+async function loadInternalLinks() {
+    const internalLinksContainer = document.getElementById('internalLinks');
+    if (!internalLinksContainer) return;
+    
+    try {
+        const data = await callAPI(CONFIG.ENDPOINTS.getInternalLinks, { url: window.location.pathname });
+        
+        if (data.links && data.links.length) {
+            let linksHTML = '<div class="internal-links"><h3>Related Services</h3><div class="internal-links-grid">';
+            data.links.forEach(link => {
+                linksHTML += `<a href="${link.target_url}">${link.anchor_text || link.target_url.replace(/\.html$/, '').replace(/-/g, ' ')}</a>`;
+            });
+            linksHTML += '</div></div>';
+            internalLinksContainer.innerHTML = linksHTML;
+        }
+    } catch (error) {
+        console.error('Error loading internal links:', error);
+    }
+}
+
+// ============================================
+// NAVIGATION MENU
 // ============================================
 async function loadNavigationMenu() {
     const navLinks = document.getElementById('navLinks');
@@ -269,37 +393,205 @@ async function loadNavigationMenu() {
 }
 
 // ============================================
-// LOAD FOOTER CONTENT FROM SHEET
+// TRUST SECTION
 // ============================================
-async function loadFooterContent() {
-    const footerServices = document.getElementById('footerServices');
-    const footerCities = document.getElementById('footerCities');
+async function loadTrustSection() {
+    const trustGrid = document.getElementById('trustGrid');
+    if (!trustGrid) return;
     
     try {
-        if (footerServices) {
-            const services = await callAPI(CONFIG.ENDPOINTS.getServices, { limit: 8 });
-            if (services.services && services.services.length) {
-                footerServices.innerHTML = services.services.map(s => 
-                    `<a href="/pages/${s.slug || s.category_id.toLowerCase().replace(/ /g, '-')}.html">${s.category_name}</a>`
-                ).join('');
-            }
-        }
-        
-        if (footerCities) {
-            const cities = await callAPI(CONFIG.ENDPOINTS.getCities, { limit: 8 });
-            if (cities.cities && cities.cities.length) {
-                footerCities.innerHTML = cities.cities.map(c => 
-                    `<a href="/pages/services-in-${c.city_name.toLowerCase().replace(/ /g, '-')}.html">${c.city_name}</a>`
-                ).join('');
-            }
+        const data = await callAPI(CONFIG.ENDPOINTS.getTrustSection);
+        if (data.items && data.items.length) {
+            trustGrid.innerHTML = data.items.map(item => `
+                <div class="trust-item">
+                    <span class="trust-icon">${item.icon}</span>
+                    <h3>${item.title}</h3>
+                    <p>${item.description}</p>
+                </div>
+            `).join('');
         }
     } catch (error) {
-        console.error('Error loading footer content:', error);
+        console.error('Error loading trust section:', error);
     }
 }
 
 // ============================================
-// SMART SEARCH WITH FILTERS
+// EMERGENCY CTA
+// ============================================
+async function loadEmergencyCTA() {
+    const ctaSection = document.querySelector('.emergency-cta');
+    if (!ctaSection) return;
+    
+    try {
+        const data = await callAPI(CONFIG.ENDPOINTS.getEmergencyCTA);
+        if (data && !data.error) {
+            const iconEl = ctaSection.querySelector('.cta-icon');
+            const titleEl = ctaSection.querySelector('h2');
+            const subtitleEl = ctaSection.querySelector('.cta-subtitle');
+            
+            if (iconEl && data.icon) iconEl.textContent = data.icon;
+            if (titleEl && data.title) titleEl.textContent = data.title;
+            if (subtitleEl && data.subtitle) subtitleEl.textContent = data.subtitle;
+        }
+    } catch (error) {
+        console.error('Error loading emergency CTA:', error);
+    }
+}
+
+// ============================================
+// FOOTER SECTIONS (Advanced)
+// ============================================
+async function loadFooterSections() {
+    const footerGrid = document.getElementById('footerGrid');
+    if (!footerGrid) return;
+    
+    footerGrid.innerHTML = '<div class="spinner"></div>';
+    try {
+        const sections = await callAPI(CONFIG.ENDPOINTS.getFooterSections);
+        const socialLinks = await callAPI(CONFIG.ENDPOINTS.getFooterSocialLinks);
+        const policyLinks = await callAPI(CONFIG.ENDPOINTS.getFooterPolicyLinks);
+        const trustBadges = await callAPI(CONFIG.ENDPOINTS.getFooterTrustBadges);
+        const newsletter = await callAPI(CONFIG.ENDPOINTS.getFooterNewsletter);
+        const apps = await callAPI(CONFIG.ENDPOINTS.getFooterApps);
+        const paymentMethods = await callAPI(CONFIG.ENDPOINTS.getFooterPaymentMethods);
+        const businessHours = await callAPI(CONFIG.ENDPOINTS.getFooterBusinessHours);
+        const services = await callAPI(CONFIG.ENDPOINTS.getMainCategories, { limit: 8 });
+        const cities = await callAPI(CONFIG.ENDPOINTS.getCities, { limit: 8 });
+        const emergencyNumber = await callAPI(CONFIG.ENDPOINTS.getEmergencyNumber);
+        
+        let footerHTML = `
+            <div class="footer-grid-advanced">
+                <!-- Column 1: Brand -->
+                <div class="footer-col-advanced">
+                    <div class="footer-logo">
+                        <span class="footer-logo-icon">🚨</span>
+                        <span class="footer-logo-text">HelpNow</span>
+                    </div>
+                    <p class="footer-about">${sections.about_text || '24/7 emergency home services connecting you with licensed professionals instantly.'}</p>
+                    <div class="footer-social">
+                        ${socialLinks.map(s => `<a href="${s.url}" class="social-icon" target="_blank" rel="noopener noreferrer">${s.icon} ${s.name}</a>`).join('')}
+                    </div>
+                </div>
+                
+                <!-- Column 2: Emergency Services -->
+                <div class="footer-col-advanced">
+                    <h4 class="footer-heading">Emergency Services</h4>
+                    <ul class="footer-links">
+                        ${services.services ? services.services.map(s => `<li><a href="/pages/${s.slug || s.category_id.toLowerCase()}.html">${s.category_name}</a></li>`).join('') : ''}
+                    </ul>
+                </div>
+                
+                <!-- Column 3: Service Areas -->
+                <div class="footer-col-advanced">
+                    <h4 class="footer-heading">Service Areas</h4>
+                    <ul class="footer-links">
+                        ${cities.cities ? cities.cities.map(c => `<li><a href="/pages/services-in-${c.city_name.toLowerCase().replace(/ /g, '-')}.html">${c.city_name}, ${c.state_code || c.state}</a></li>`).join('') : ''}
+                    </ul>
+                </div>
+                
+                <!-- Column 4: Business Hours -->
+                <div class="footer-col-advanced">
+                    <h4 class="footer-heading">24/7 Emergency Support</h4>
+                    <div class="business-hours">
+                        ${businessHours.map(h => `<div class="hours-row"><span class="hours-day">${h.day}:</span><span class="hours-time">${h.hours}</span></div>`).join('')}
+                    </div>
+                    <div class="emergency-phone-footer">
+                        <span class="phone-icon">📞</span>
+                        <span class="phone-number">${emergencyNumber.number || CONFIG.DEFAULT_EMERGENCY_NUMBER}</span>
+                    </div>
+                </div>
+                
+                <!-- Column 5: Trust Badges -->
+                <div class="footer-col-advanced">
+                    <h4 class="footer-heading">Why Choose Us</h4>
+                    <div class="trust-badges">
+                        ${trustBadges.map(b => `
+                            <div class="trust-badge">
+                                <span class="badge-icon">${b.icon}</span>
+                                <span class="badge-text">${b.text}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Newsletter Section
+        if (newsletter.enabled === 'Yes') {
+            footerHTML += `
+                <div class="footer-newsletter">
+                    <div class="newsletter-content">
+                        <h4>${newsletter.title || 'Get Emergency Alerts'}</h4>
+                        <p>${newsletter.subtitle || 'Subscribe for safety tips and emergency updates'}</p>
+                    </div>
+                    <form class="newsletter-form" id="newsletterForm">
+                        <input type="email" placeholder="${newsletter.placeholder || 'Enter your email'}" required>
+                        <button type="submit">${newsletter.button_text || 'Subscribe'}</button>
+                    </form>
+                </div>
+            `;
+        }
+        
+        // Apps Section
+        if (apps.length) {
+            footerHTML += `
+                <div class="footer-apps">
+                    <h4>Download Our App</h4>
+                    <div class="app-links">
+                        ${apps.map(a => `<a href="${a.url}" class="app-link" target="_blank">${a.icon} ${a.name}</a>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Payment Methods
+        if (paymentMethods.length) {
+            footerHTML += `
+                <div class="footer-payment">
+                    <span class="payment-label">We Accept:</span>
+                    <div class="payment-icons">
+                        ${paymentMethods.map(p => `<span class="payment-icon" title="${p.name}">${p.icon}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Bottom Bar
+        footerHTML += `
+            <div class="footer-bottom-advanced">
+                <div class="copyright">
+                    © ${new Date().getFullYear()} HelpNow. ${sections.copyright_text || 'All rights reserved.'}
+                </div>
+                <div class="footer-policy-links">
+                    ${policyLinks.map(p => `<a href="${p.url}">${p.name}</a>`).join(' | ')}
+                </div>
+            </div>
+        `;
+        
+        footerGrid.innerHTML = footerHTML;
+        
+        // Initialize newsletter form
+        const newsletterForm = document.getElementById('newsletterForm');
+        if (newsletterForm) {
+            newsletterForm.addEventListener('submit', handleNewsletterSubmit);
+        }
+    } catch (error) {
+        console.error('Error loading footer sections:', error);
+        footerGrid.innerHTML = '<p>Unable to load footer.</p>';
+    }
+}
+
+// Rest of footer loaders (social links, policy links, trust badges, newsletter, apps, payment methods, business hours)
+async function loadFooterSocialLinks() { /* Handled in loadFooterSections */ }
+async function loadFooterPolicyLinks() { /* Handled in loadFooterSections */ }
+async function loadFooterTrustBadges() { /* Handled in loadFooterSections */ }
+async function loadFooterNewsletter() { /* Handled in loadFooterSections */ }
+async function loadFooterApps() { /* Handled in loadFooterSections */ }
+async function loadFooterPaymentMethods() { /* Handled in loadFooterSections */ }
+async function loadFooterBusinessHours() { /* Handled in loadFooterSections */ }
+
+// ============================================
+// SMART SEARCH
 // ============================================
 async function initSmartSearch() {
     const searchInput = document.getElementById('smartSearch');
@@ -323,25 +615,19 @@ async function initSmartSearch() {
         }
         
         try {
-            const results = await callAPI(CONFIG.ENDPOINTS.search, { 
-                q: query, 
-                location: location, 
-                category: category 
-            });
+            const results = await callAPI(CONFIG.ENDPOINTS.search, { q: query, location: location, category: category });
             
             if (results.suggestions && results.suggestions.length) {
                 suggestionsDiv.innerHTML = results.suggestions.map(s => `
                     <div class="suggestion-item" data-url="${s.url}">
                         <strong>${s.display_text || s.keyword}</strong>
-                        <small style="color: #6b7280; display: block;">${s.category || 'Emergency Service'} in ${s.city || 'Your Area'}</small>
+                        <small>${s.category || 'Emergency Service'} in ${s.city || 'Your Area'}</small>
                     </div>
                 `).join('');
                 suggestionsDiv.classList.add('active');
                 
                 document.querySelectorAll('.suggestion-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        window.location.href = item.dataset.url;
-                    });
+                    item.addEventListener('click', () => { window.location.href = item.dataset.url; });
                 });
             } else {
                 suggestionsDiv.classList.remove('active');
@@ -352,7 +638,7 @@ async function initSmartSearch() {
         }
     };
     
-    searchInput.addEventListener('input', (e) => {
+    searchInput.addEventListener('input', () => {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(performSearch, 300);
     });
@@ -360,9 +646,7 @@ async function initSmartSearch() {
     if (searchBtn) {
         searchBtn.addEventListener('click', () => {
             const query = searchInput.value.trim();
-            if (query) {
-                window.location.href = `/search.html?q=${encodeURIComponent(query)}`;
-            }
+            if (query) window.location.href = `/search.html?q=${encodeURIComponent(query)}`;
         });
     }
     
@@ -377,7 +661,7 @@ async function initSmartSearch() {
 }
 
 // ============================================
-// INITIALIZE FORMS
+// FORMS SUBMISSION
 // ============================================
 async function initForms() {
     const forms = document.querySelectorAll('form[data-type="lead"], form#leadForm');
@@ -419,8 +703,26 @@ async function initForms() {
     });
 }
 
+// Newsletter submission
+async function handleNewsletterSubmit(e) {
+    e.preventDefault();
+    const email = e.target.querySelector('input[type="email"]').value;
+    
+    try {
+        const result = await callAPI('/subscribeNewsletter', { email: email }, 'POST');
+        if (result.success) {
+            showNotification('Subscribed successfully!', 'success');
+            e.target.reset();
+        } else {
+            showNotification('Something went wrong', 'error');
+        }
+    } catch (error) {
+        showNotification('Something went wrong', 'error');
+    }
+}
+
 // ============================================
-// MOBILE MENU TOGGLE
+// MOBILE MENU
 // ============================================
 function initMobileMenu() {
     const mobileBtn = document.getElementById('mobileMenu');
@@ -429,31 +731,48 @@ function initMobileMenu() {
     if (mobileBtn && navLinks) {
         mobileBtn.addEventListener('click', () => {
             navLinks.classList.toggle('active');
-            mobileBtn.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+            mobileBtn.classList.toggle('active');
+            mobileBtn.setAttribute('aria-expanded', navLinks.classList.contains('active'));
         });
     }
 }
 
 // ============================================
-// SHOW NOTIFICATION
+// SMOOTH SCROLL
+// ============================================
+function initSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href === '#' || href === '') return;
+            
+            const target = document.querySelector(href);
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+}
+
+// ============================================
+// FAQ TOGGLES
+// ============================================
+function initFAQToggles() {
+    document.querySelectorAll('.faq-card').forEach(card => {
+        card.addEventListener('click', () => {
+            card.classList.toggle('active');
+        });
+    });
+}
+
+// ============================================
+// NOTIFICATION
 // ============================================
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    notification.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        padding: 14px 20px;
-        background: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6'};
-        color: white;
-        border-radius: 10px;
-        z-index: 10000;
-        animation: slideIn 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    `;
-    
+    notification.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span> ${message}`;
     document.body.appendChild(notification);
     
     setTimeout(() => {
@@ -475,26 +794,10 @@ function trackCall(number, pageUrl) {
 }
 
 // ============================================
-// EXPORT FUNCTIONS FOR GLOBAL USE
+// EXPORT FUNCTIONS
 // ============================================
 if (typeof window !== 'undefined') {
     window.trackCall = trackCall;
     window.showNotification = showNotification;
-}
-
-// Add CSS animations if not present
-if (!document.querySelector('#notification-styles')) {
-    const style = document.createElement('style');
-    style.id = 'notification-styles';
-    style.textContent = `
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-    `;
-    document.head.appendChild(style);
-}
+    window.initFAQToggles = initFAQToggles;
+                }
