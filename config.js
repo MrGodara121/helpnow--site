@@ -4,8 +4,8 @@
 // ============================================
 
 const CONFIG = {
-    // ===== GOOGLE APPS SCRIPT URL =====
-    API_BASE_URL: 'https://script.google.com/macros/s/AKfycbyrft-4cg7OiG_hNSmh8qzfY74IcQ3cFnBNyz3MzR3j7-h8Znxa3AN1HZhecEXrb9AxZA/exec',
+    // ===== GOOGLE APPS SCRIPT URL (UPDATED) =====
+    API_BASE_URL: 'https://script.google.com/macros/s/AKfycbzDlQtI78j-Tv-JpbBqu12UXjVMUzCFLQlJTuLTfWKvTN1ZYG0v_el2aq6MKWO4FvzoDQ/exec',
     
     // ===== GOOGLE SHEET ID =====
     SPREADSHEET_ID: '11lJ0od8N_tesMpMRcguwPt1VFUg8oiiOBGMpBQ0ZwIE',
@@ -187,4 +187,4 @@ if (typeof window !== 'undefined') {
     window.callAPI = callAPI;
     window.clearCache = clearCache;
     window.generateSitemap = generateSitemap;
-}
+    }
