@@ -1,0 +1,19 @@
+# ============================================
+# HELPNOW.COM - ROBOTS.TXT
+# ============================================
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /assets/
+Disallow: /pages/temp/
+
+# Sitemap location
+Sitemap: https://helpnow.com/sitemap.xml
+
+# Crawl delay (be polite to servers)
+Crawl-delay: 1
+
+# Host directive (for SEO)
+Host: https://helpnow.com
