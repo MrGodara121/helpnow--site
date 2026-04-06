@@ -1,3 +1,8 @@
+# ============================================
+# HELPNOW.COM - GITHUB ACTIONS DEPLOYMENT
+# Auto-deploys to GitHub Pages on push to main
+# ============================================
+
 name: Deploy HelpNow to GitHub Pages
 
 on:
@@ -21,9 +26,24 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+      
+      - name: Setup Node.js (for page generator)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Generate pages from Google Sheets
+        run: |
+          if [ -f "generate-pages.js" ]; then
+            node generate-pages.js
+          fi
+        env:
+          GOOGLE_SHEETS_API_KEY: ${{ secrets.GOOGLE_SHEETS_API_KEY }}
+          GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
