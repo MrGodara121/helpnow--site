@@ -1,8 +1,3 @@
-# ============================================
-# HELPNOW.COM - GITHUB ACTIONS DEPLOYMENT
-# Auto-deploys to GitHub Pages on push to main
-# ============================================
-
 name: Deploy HelpNow to GitHub Pages
 
 on:
@@ -11,35 +6,36 @@ on:
       - main
   workflow_dispatch:
 
+# Allow GitHub Pages deployment
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# Concurrency control
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  # Build job
+  build:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Setup Node.js (for page generator)
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       
-      - name: Generate pages from Google Sheets
+      - name: Generate pages from Google Sheets (optional)
         run: |
           if [ -f "generate-pages.js" ]; then
-            node generate-pages.js
+            echo "⚠️ generate-pages.js found but skipping - requires API key"
+            echo "To enable page generation, add GOOGLE_SHEETS_API_KEY to secrets"
+            # node generate-pages.js
           fi
         env:
           GOOGLE_SHEETS_API_KEY: ${{ secrets.GOOGLE_SHEETS_API_KEY }}
@@ -52,7 +48,15 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
-      
+  
+  # Deploy job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
