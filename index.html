@@ -3,22 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>HelpNow - 24/7 Emergency Home Services</title>
-    <meta name="description" content="Emergency plumber, water damage restoration, electrician, roof repair - 24/7 service. Licensed professionals. Free estimates. Call now!">
-    <meta name="keywords" content="emergency plumber, water damage, electrician, roof repair, hvac, fire damage, public adjuster">
+    <title>HelpNow - 24/7 Emergency Home Services | Licensed Professionals</title>
+    <meta name="description" content="Emergency plumber, water damage restoration, electrician, roof repair - 24/7 service. Licensed professionals. Free estimates. Insurance claims help. Call now!">
+    <meta name="keywords" content="emergency plumber, water damage, electrician, roof repair, hvac, fire damage, public adjuster, 24/7 emergency service">
     <meta name="author" content="HelpNow">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <meta name="googlebot" content="index, follow">
     <link rel="canonical" href="https://helpnow.com">
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="HelpNow - 24/7 Emergency Home Services">
+    <meta property="og:description" content="Emergency plumber, water damage, electrician - 24/7. Licensed professionals. Free estimates.">
+    <meta property="og:url" content="https://helpnow.com">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://helpnow.com/assets/images/og-image.jpg">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="HelpNow - 24/7 Emergency Services">
+    <meta name="twitter:description" content="Emergency help instantly. Licensed professionals. 30-min response.">
+    
+    <!-- Preload Critical Assets -->
+    <link rel="preload" href="style.css" as="style">
+    <link rel="preload" href="app.js" as="script">
 </head>
 <body>
+
+<!-- Skip to Content Link for Accessibility -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
 
 <!-- Navigation Bar -->
 <nav class="navbar" id="mainNav">
     <div class="container">
-        <a href="/" class="logo">🚨 HelpNow</a>
+        <a href="/" class="logo" aria-label="HelpNow Home">
+            <span class="logo-icon">🚨</span>
+            <span class="logo-text">HelpNow</span>
+        </a>
+        <button class="mobile-menu" id="mobileMenu" aria-label="Menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
         <div class="nav-links" id="navLinks">
             <a href="/">Home</a>
             <a href="#services">Emergency Services</a>
@@ -28,44 +57,50 @@
             <a href="/blog">Blog</a>
             <a href="admin.html" class="admin-link">Admin</a>
         </div>
-        <button class="mobile-menu" id="mobileMenu" aria-label="Menu">☰</button>
     </div>
 </nav>
 
 <!-- Hero Section -->
 <section class="hero">
     <div class="container">
-        <h1>Emergency Help <span>Instantly</span></h1>
-        <p>Connect with licensed professionals in your area. 24/7 emergency service, free estimates, insurance claims assistance.</p>
-        
-        <!-- Advance Search Bar -->
-        <div class="search-container">
-            <div class="search-box">
-                <input type="text" id="smartSearch" placeholder="Search: plumber, electrician, water damage, roof repair..." autocomplete="off">
-                <button id="searchBtn">🔍 Find Help Now</button>
-                <div id="searchSuggestions" class="suggestions"></div>
+        <div class="hero-content">
+            <h1>Emergency Help <span class="highlight">Instantly</span></h1>
+            <p class="hero-subtitle">Connect with licensed professionals in your area. 24/7 emergency service, free estimates, insurance claims assistance.</p>
+            
+            <!-- Advanced Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="smartSearch" placeholder="Search: plumber, electrician, water damage, roof repair..." autocomplete="off" aria-label="Search emergency services">
+                    <button id="searchBtn" aria-label="Search">Find Help Now</button>
+                    <div id="searchSuggestions" class="suggestions"></div>
+                </div>
+                <div class="search-filters">
+                    <select id="locationFilter" class="filter-select" aria-label="Filter by location">
+                        <option value="">All Locations</option>
+                        <option value="new-york">New York, NY</option>
+                        <option value="los-angeles">Los Angeles, CA</option>
+                        <option value="chicago">Chicago, IL</option>
+                        <option value="houston">Houston, TX</option>
+                        <option value="phoenix">Phoenix, AZ</option>
+                    </select>
+                    <select id="categoryFilter" class="filter-select" aria-label="Filter by category">
+                        <option value="">All Services</option>
+                        <option value="plumbing">🔧 Plumbing</option>
+                        <option value="water-damage">💧 Water Damage</option>
+                        <option value="roofing">🏠 Roofing</option>
+                        <option value="electrical">⚡ Electrical</option>
+                        <option value="hvac">❄️ HVAC</option>
+                    </select>
+                </div>
             </div>
-            <div class="search-filters">
-                <select id="locationFilter" class="filter-select">
-                    <option value="">All Locations</option>
-                    <option value="new-york">New York</option>
-                    <option value="los-angeles">Los Angeles</option>
-                    <option value="chicago">Chicago</option>
-                </select>
-                <select id="categoryFilter" class="filter-select">
-                    <option value="">All Services</option>
-                    <option value="plumbing">Plumbing</option>
-                    <option value="water-damage">Water Damage</option>
-                    <option value="roofing">Roofing</option>
-                </select>
+            
+            <div class="emergency-badge" id="emergencyBadges">
+                <span>⚡ 24/7 Emergency Response</span>
+                <span>✅ Licensed & Insured</span>
+                <span>💰 Free Estimates</span>
+                <span>⭐ 4.9/5 Customer Rating</span>
             </div>
-        </div>
-        
-        <div class="emergency-badge" id="emergencyBadges">
-            <span>⚡ 24/7 Emergency Response</span>
-            <span>✅ Licensed & Insured</span>
-            <span>💰 Free Estimates</span>
-            <span>⭐ 4.9/5 Customer Rating</span>
         </div>
     </div>
 </section>
@@ -73,7 +108,10 @@
 <!-- Services Section with Ratings -->
 <section id="services" class="services">
     <div class="container">
-        <h2>Emergency Services Available 24/7</h2>
+        <div class="section-header">
+            <h2>Emergency Services Available 24/7</h2>
+            <p>Licensed professionals ready to help you now</p>
+        </div>
         <div class="service-grid" id="serviceGrid">
             <div class="spinner"></div>
         </div>
@@ -83,7 +121,10 @@
 <!-- Cities Section -->
 <section id="cities" class="cities">
     <div class="container">
-        <h2>Service Areas - Available Across Major Cities</h2>
+        <div class="section-header">
+            <h2>Service Areas - Available Across Major Cities</h2>
+            <p>We're everywhere you need us</p>
+        </div>
         <div class="city-grid" id="cityGrid">
             <div class="spinner"></div>
         </div>
@@ -93,7 +134,10 @@
 <!-- Neighborhoods Section (Hyper-local SEO) -->
 <section id="neighborhoods" class="neighborhoods">
     <div class="container">
-        <h2>We Serve All Neighborhoods</h2>
+        <div class="section-header">
+            <h2>We Serve All Neighborhoods</h2>
+            <p>Hyper-local emergency services in your area</p>
+        </div>
         <div class="neighborhood-grid" id="neighborhoodGrid">
             <div class="spinner"></div>
         </div>
@@ -103,20 +147,26 @@
 <!-- How It Works -->
 <section id="how-it-works" class="how-it-works">
     <div class="container">
-        <h2>How HelpNow Works - Get Help in 3 Simple Steps</h2>
+        <div class="section-header">
+            <h2>How HelpNow Works - Get Help in 3 Simple Steps</h2>
+            <p>Fast, easy, and reliable emergency service</p>
+        </div>
         <div class="steps">
             <div class="step">
                 <div class="step-number">1</div>
+                <div class="step-icon">📝</div>
                 <h3>Describe Your Emergency</h3>
                 <p>Tell us what service you need and where you are</p>
             </div>
             <div class="step">
                 <div class="step-number">2</div>
+                <div class="step-icon">🤝</div>
                 <h3>Get Matched Instantly</h3>
                 <p>We connect you with top-rated local professionals</p>
             </div>
             <div class="step">
                 <div class="step-number">3</div>
+                <div class="step-icon">✅</div>
                 <h3>Problem Solved</h3>
                 <p>Get help within 30-60 minutes, 24/7/365</p>
             </div>
@@ -127,7 +177,10 @@
 <!-- Trust Section with Reviews -->
 <section class="trust">
     <div class="container">
-        <h2>Why Homeowners Trust HelpNow</h2>
+        <div class="section-header">
+            <h2>Why Homeowners Trust HelpNow</h2>
+            <p>Thousands of satisfied customers nationwide</p>
+        </div>
         <div class="trust-grid" id="trustGrid">
             <div class="trust-item">
                 <span class="trust-icon">🏆</span>
@@ -147,7 +200,7 @@
             <div class="trust-item">
                 <span class="trust-icon">⭐</span>
                 <h3>4.9/5 Customer Rating</h3>
-                <p>Thousands of satisfied customers nationwide</p>
+                <p>Based on 1,250+ verified customer reviews</p>
             </div>
         </div>
     </div>
@@ -156,8 +209,24 @@
 <!-- Recent Reviews Section -->
 <section class="reviews">
     <div class="container">
-        <h2>What Our Customers Say</h2>
+        <div class="section-header">
+            <h2>What Our Customers Say</h2>
+            <p>Real reviews from real customers</p>
+        </div>
         <div class="reviews-grid" id="reviewsGrid">
+            <div class="spinner"></div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section (Schema Markup) -->
+<section class="faq-section" id="faqSection">
+    <div class="container">
+        <div class="section-header">
+            <h2>Frequently Asked Questions</h2>
+            <p>Everything you need to know about our emergency services</p>
+        </div>
+        <div class="faq-grid" id="faqGrid">
             <div class="spinner"></div>
         </div>
     </div>
@@ -166,48 +235,49 @@
 <!-- Emergency CTA -->
 <section class="emergency-cta" id="emergencyCTA">
     <div class="container">
-        <span class="cta-icon">🚨</span>
-        <h2>Emergency? Need Help Now?</h2>
-        <p class="cta-subtitle">24/7 Emergency Dispatch | Free Estimates | Licensed Professionals</p>
-        <a href="#" id="emergencyCallBtn" class="call-btn">📞 Call Now: Loading...</a>
+        <div class="cta-content">
+            <span class="cta-icon">🚨</span>
+            <h2>Emergency? Need Help Now?</h2>
+            <p class="cta-subtitle">24/7 Emergency Dispatch | Free Estimates | Licensed Professionals</p>
+            <a href="#" id="emergencyCallBtn" class="call-btn pulse">📞 Call Now: Loading...</a>
+        </div>
     </div>
 </section>
 
-<!-- Footer -->
-<footer>
+<!-- Advanced Footer -->
+<footer id="mainFooter">
     <div class="container">
-        <div class="footer-grid">
-            <div class="footer-col">
-                <h4>🚨 HelpNow</h4>
-                <p>24/7 emergency home services connecting you with licensed professionals instantly.</p>
-                <div class="social-links">
-                    <a href="#" class="social-link">📘</a>
-                    <a href="#" class="social-link">🐦</a>
-                    <a href="#" class="social-link">📸</a>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h4>Emergency Services</h4>
-                <div id="footerServices"></div>
-            </div>
-            <div class="footer-col">
-                <h4>Service Areas</h4>
-                <div id="footerCities"></div>
-            </div>
-            <div class="footer-col">
-                <h4>Contact</h4>
-                <p>📞 Emergency: <strong id="footerPhone">Loading...</strong></p>
-                <p>📧 support@helpnow.com</p>
-                <p>🕐 24/7/365</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2024 HelpNow. All rights reserved. | <a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms of Service</a></p>
+        <div class="footer-grid-advanced" id="footerGrid">
+            <div class="spinner"></div>
         </div>
     </div>
 </footer>
 
 <script src="config.js"></script>
 <script src="app.js"></script>
+<script src="footer-advanced.js"></script>
+<script src="assets/js/footer-schema.js"></script>
+
+<!-- Schema Markup -->
+<script type="application/ld+json" id="organizationSchema">
+{
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "HelpNow",
+    "url": "https://helpnow.com",
+    "logo": "https://helpnow.com/assets/images/logo.png",
+    "sameAs": [
+        "https://www.facebook.com/helpnow",
+        "https://twitter.com/helpnow",
+        "https://www.instagram.com/helpnow"
+    ],
+    "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+1-888-999-0000",
+        "contactType": "customer service",
+        "availableLanguage": ["English", "Spanish"]
+    }
+}
+</script>
 </body>
-      </html>
+</html>
